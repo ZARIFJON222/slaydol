@@ -18,7 +18,7 @@ from aiogram.types import BufferedInputFile, Update
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 
-from app.config import ADMIN_IDS, BOT_TOKEN, GENERATED_DIR, WEBAPP_DIR
+from app.config import ADMIN_IDS, BOT_TOKEN, FIREBASE_CREDENTIALS_JSON, GENERATED_DIR, WEBAPP_DIR
 from app.db import get_user_generations, init_firestore, record_generation
 from app.handlers import admin, generator, user
 from app.locales import TEXTS
@@ -106,6 +106,24 @@ async def serve_static(filename: str):
 @fastapi_app.get("/api/health")
 async def health():
     return {"ok": True, "bot": "@SlaydYasa_robot", "runtime": "vercel"}
+
+
+@fastapi_app.get("/api/diag")
+async def diag():
+    fb_ok = False
+    fb_error = ""
+    try:
+        init_firestore()
+        fb_ok = True
+    except Exception as exc:
+        fb_error = f"{type(exc).__name__}: {exc}"
+    return {
+        "ok": fb_ok and bool(BOT_TOKEN),
+        "has_bot_token": bool(BOT_TOKEN),
+        "has_fb_json": bool(FIREBASE_CREDENTIALS_JSON),
+        "fb_ok": fb_ok,
+        "fb_error": fb_error,
+    }
 
 
 @fastapi_app.get("/api/history")
@@ -269,15 +287,18 @@ async def generate_referat(request: Request):
 
 @fastapi_app.post("/api/webhook")
 async def telegram_webhook(request: Request):
-    raw = await request.json()
-    update = Update.model_validate(raw)
-    dp = _get_dispatcher()
     bot = _get_bot()
     try:
+        raw = await request.json()
+        update = Update.model_validate(raw)
+        dp = _get_dispatcher()
         await dp.feed_update(bot, update)
+        return {"ok": True}
+    except Exception as exc:
+        logger.exception("Webhook xatosi")
+        return JSONResponse({"ok": False, "error": f"{type(exc).__name__}: {exc}"}, status_code=200)
     finally:
         await bot.session.close()
-    return {"ok": True}
 
 
 async def app(scope, receive, send):

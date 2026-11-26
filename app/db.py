@@ -34,7 +34,14 @@ def init_firestore():
 
     if not firebase_admin._apps:
         if FIREBASE_CREDENTIALS_JSON:
-            cred_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
+            raw_fb = FIREBASE_CREDENTIALS_JSON.strip()
+            if (raw_fb.startswith("'") and raw_fb.endswith("'")) or (
+                raw_fb.startswith('"') and raw_fb.endswith('"')
+            ):
+                raw_fb = raw_fb[1:-1]
+            cred_dict = json.loads(raw_fb)
+            if isinstance(cred_dict.get("private_key"), str):
+                cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
             cred = credentials.Certificate(cred_dict)
         elif FIREBASE_CREDENTIALS.exists():
             cred = credentials.Certificate(str(FIREBASE_CREDENTIALS))
