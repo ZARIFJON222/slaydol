@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import logging
 import time
@@ -34,12 +35,14 @@ def init_firestore():
 
     if not firebase_admin._apps:
         if FIREBASE_CREDENTIALS_JSON:
-            raw_fb = FIREBASE_CREDENTIALS_JSON.strip()
-            if (raw_fb.startswith("'") and raw_fb.endswith("'")) or (
-                raw_fb.startswith('"') and raw_fb.endswith('"')
-            ):
-                raw_fb = raw_fb[1:-1]
-            cred_dict = json.loads(raw_fb)
+            raw_fb = FIREBASE_CREDENTIALS_JSON.strip().strip("'\"")
+            if "{" not in raw_fb:
+                raw_fb = base64.b64decode(raw_fb).decode("utf-8")
+            start = raw_fb.find("{")
+            end = raw_fb.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                raw_fb = raw_fb[start : end + 1]
+            cred_dict = json.loads(raw_fb, strict=False)
             if isinstance(cred_dict.get("private_key"), str):
                 cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
             cred = credentials.Certificate(cred_dict)

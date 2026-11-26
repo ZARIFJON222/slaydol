@@ -1,5 +1,6 @@
 .env
 .env.vercel
+firebase-b64.txt
 firebase-credentials.json
 logs/
 generated/

@@ -121,6 +121,8 @@ async def diag():
         "ok": fb_ok and bool(BOT_TOKEN),
         "has_bot_token": bool(BOT_TOKEN),
         "has_fb_json": bool(FIREBASE_CREDENTIALS_JSON),
+        "fb_len": len(FIREBASE_CREDENTIALS_JSON),
+        "fb_starts_with": FIREBASE_CREDENTIALS_JSON[:1],
         "fb_ok": fb_ok,
         "fb_error": fb_error,
     }
