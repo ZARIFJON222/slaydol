@@ -29,7 +29,7 @@ from app.services.docx_builder import build_referat_docx
 from app.services.pptx_builder import THEMES, build_presentation
 
 logger = setup_logging()
-app = FastAPI(title="SlaydYasa Studio API")
+fastapi_app = FastAPI(title="SlaydYasa Studio API")
 
 _dp: Dispatcher | None = None
 
@@ -89,12 +89,12 @@ def _extract_user_id(request: Request) -> int:
     raise HTTPException(status_code=401, detail="Unauthorized")
 
 
-@app.get("/")
+@fastapi_app.get("/")
 async def serve_index():
     return FileResponse(WEBAPP_DIR / "index.html")
 
 
-@app.get("/static/{filename:path}")
+@fastapi_app.get("/static/{filename:path}")
 async def serve_static(filename: str):
     safe = Path(filename).name
     target = WEBAPP_DIR / safe
@@ -103,12 +103,12 @@ async def serve_static(filename: str):
     return FileResponse(target)
 
 
-@app.get("/api/health")
+@fastapi_app.get("/api/health")
 async def health():
     return {"ok": True, "bot": "@SlaydYasa_robot", "runtime": "vercel"}
 
 
-@app.get("/api/history")
+@fastapi_app.get("/api/history")
 async def history(request: Request):
     init_firestore()
     uid = _extract_user_id(request)
@@ -130,7 +130,7 @@ async def history(request: Request):
     return {"ok": True, "items": serialized}
 
 
-@app.post("/api/generate/slide")
+@fastapi_app.post("/api/generate/slide")
 async def generate_slide(request: Request):
     init_firestore()
     uid = _extract_user_id(request)
@@ -202,7 +202,7 @@ async def generate_slide(request: Request):
                 pass
 
 
-@app.post("/api/generate/referat")
+@fastapi_app.post("/api/generate/referat")
 async def generate_referat(request: Request):
     init_firestore()
     uid = _extract_user_id(request)
@@ -267,7 +267,7 @@ async def generate_referat(request: Request):
                 pass
 
 
-@app.post("/api/webhook")
+@fastapi_app.post("/api/webhook")
 async def telegram_webhook(request: Request):
     raw = await request.json()
     update = Update.model_validate(raw)
@@ -278,3 +278,18 @@ async def telegram_webhook(request: Request):
     finally:
         await bot.session.close()
     return {"ok": True}
+
+
+async def app(scope, receive, send):
+    """Restores original /api/... path when Vercel rewrites /api/(.*) -> /api/index?__p=$1."""
+    if scope["type"] == "http" and scope.get("path") == "/api/index":
+        from urllib.parse import urlencode
+
+        qs = scope.get("query_string", b"").decode("utf-8", errors="ignore")
+        params = dict(parse_qsl(qs, keep_blank_values=True))
+        sub = params.pop("__p", "").lstrip("/")
+        if sub:
+            scope = dict(scope)
+            scope["path"] = f"/api/{sub}"
+            scope["query_string"] = urlencode(params).encode("utf-8")
+    await fastapi_app(scope, receive, send)
