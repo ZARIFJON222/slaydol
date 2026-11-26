@@ -37,6 +37,7 @@ def init_firestore():
         if FIREBASE_CREDENTIALS_JSON:
             raw_fb = FIREBASE_CREDENTIALS_JSON.strip().strip("'\"")
             if "{" not in raw_fb:
+                raw_fb += "=" * (-len(raw_fb) % 4)
                 raw_fb = base64.b64decode(raw_fb).decode("utf-8")
             start = raw_fb.find("{")
             end = raw_fb.rfind("}")
