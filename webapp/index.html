@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>SlaydYasa Studio — Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-dot" aria-hidden="true">◆</span>
+          <span class="brand-title">SlaydYasa Studio</span>
+        </div>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn active" data-lang="uz">UZ</button>
+          <button type="button" class="lang-btn" data-lang="ru">RU</button>
+        </div>
+      </header>
+
+      <nav class="tab-bar" role="tablist" aria-label="Workspace">
+        <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="slide" id="tab-btn-slide">
+          <span data-i18n="tabSlide">📊 Slayd</span>
+        </button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="referat" id="tab-btn-referat">
+          <span data-i18n="tabReferat">📄 Referat</span>
+        </button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="history" id="tab-btn-history">
+          <span data-i18n="tabHistory">📚 Ishlarim</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: SLIDE STUDIO -->
+      <section class="tab-panel active" id="panel-slide" role="tabpanel">
+        <div class="preview-card slide-preview" id="slide-preview" data-theme-preview="obsidian_gold">
+          <div class="preview-accent-bar"></div>
+          <div class="preview-side-card">
+            <span class="preview-tag" id="preview-slide-badge">10 slayd</span>
+            <span class="preview-bot-mark">@SlaydYasa_robot</span>
+          </div>
+          <div class="preview-content">
+            <div class="preview-rule"></div>
+            <h2 class="preview-title" id="preview-slide-title">Sun'iy intellektning tibbiyotdagi o'rni</h2>
+            <p class="preview-author" id="preview-slide-author">SlaydYasa Studio</p>
+          </div>
+        </div>
+
+        <form id="slide-form" class="studio-form">
+          <label class="field">
+            <span class="field-label" data-i18n="topicLabel">Taqdimot mavzusi</span>
+            <input
+              type="text"
+              id="slide-topic"
+              class="text-input"
+              maxlength="180"
+              required
+              placeholder="Masalan: Sun'iy intellektning tibbiyotdagi o'rni"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label" data-i18n="authorLabel">Muallif va guruh (ixtiyoriy)</span>
+            <input
+              type="text"
+              id="slide-author"
+              class="text-input"
+              maxlength="80"
+              placeholder="Masalan: Azizov Sardor, 204-guruh"
+            />
+          </label>
+
+          <div class="field">
+            <span class="field-label" data-i18n="countLabel">Slaydlar soni</span>
+            <div class="pill-row" id="slide-count-group">
+              <button type="button" class="pill-btn" data-count="6">6</button>
+              <button type="button" class="pill-btn active" data-count="10">10</button>
+              <button type="button" class="pill-btn" data-count="14">14</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label" data-i18n="themeLabel">Dizayn uslubi</span>
+            <div class="theme-grid" id="slide-theme-group">
+              <button type="button" class="theme-card active" data-theme="obsidian_gold">
+                <span class="swatch swatch-obsidian"></span>
+                <span class="theme-name">Obsidian Gold</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="ivory_editorial">
+                <span class="swatch swatch-ivory"></span>
+                <span class="theme-name">Ivory Editorial</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="cobalt_tech">
+                <span class="swatch swatch-cobalt"></span>
+                <span class="theme-name">Cobalt Tech</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="emerald_nature">
+                <span class="swatch swatch-emerald"></span>
+                <span class="theme-name">Emerald Nature</span>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="primary-btn" id="slide-submit-btn" data-i18n="generateSlide">
+            Taqdimotni yaratish
+          </button>
+        </form>
+
+        <div class="status-box hidden" id="slide-progress">
+          <div class="progress-track"><div class="progress-fill" id="slide-progress-fill"></div></div>
+          <p class="progress-text" id="slide-progress-text"></p>
+        </div>
+
+        <div class="result-card hidden" id="slide-result"></div>
+      </section>
+
+      <!-- TAB 2: REFERAT / MUSTAQIL ISH STUDIO -->
+      <section class="tab-panel" id="panel-referat" role="tabpanel">
+        <div class="preview-card gost-preview" id="gost-preview">
+          <div class="gost-ministry" data-i18n="gostMinistry">O'ZBEKISTON RESPUBLIKASI OLIY TA'LIM VAZIRLIGI</div>
+          <div class="gost-type" id="preview-ref-type">REFERAT</div>
+          <div class="gost-topic" id="preview-ref-topic">O'zbekistonda raqamli iqtisodiyot rivoji</div>
+          <div class="gost-footer-row">
+            <span id="preview-ref-author">Bajardi: Talaba</span>
+            <span>Times New Roman · 14pt</span>
+          </div>
+        </div>
+
+        <form id="referat-form" class="studio-form">
+          <div class="field">
+            <span class="field-label" data-i18n="docTypeLabel">Hujjat turi</span>
+            <div class="pill-row" id="ref-type-group">
+              <button type="button" class="pill-btn active" data-rtype="Referat" data-i18n="typeReferat">Referat</button>
+              <button type="button" class="pill-btn" data-rtype="Mustaqil ish" data-i18n="typeMustaqil">Mustaqil ish</button>
+            </div>
+          </div>
+
+          <label class="field">
+            <span class="field-label" data-i18n="refTopicLabel">Ish mavzusi</span>
+            <input
+              type="text"
+              id="ref-topic"
+              class="text-input"
+              maxlength="180"
+              required
+              placeholder="Masalan: O'zbekistonda raqamli iqtisodiyot rivoji"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label" data-i18n="authorLabel">Muallif va guruh (ixtiyoriy)</span>
+            <input
+              type="text"
+              id="ref-author"
+              class="text-input"
+              maxlength="80"
+              placeholder="Masalan: Karimova Madina, 301-guruh"
+            />
+          </label>
+
+          <div class="field">
+            <span class="field-label" data-i18n="sizeLabel">Sahifa hajmi</span>
+            <div class="pill-row" id="ref-size-group">
+              <button type="button" class="pill-btn" data-size="short" data-i18n="sizeShort">5–7 bet</button>
+              <button type="button" class="pill-btn active" data-size="medium" data-i18n="sizeMedium">10–12 bet</button>
+              <button type="button" class="pill-btn" data-size="long" data-i18n="sizeLong">15+ bet</button>
+            </div>
+          </div>
+
+          <button type="submit" class="primary-btn" id="ref-submit-btn" data-i18n="generateReferat">
+            GOST hujjatni yaratish
+          </button>
+        </form>
+
+        <div class="status-box hidden" id="ref-progress">
+          <div class="progress-track"><div class="progress-fill" id="ref-progress-fill"></div></div>
+          <p class="progress-text" id="ref-progress-text"></p>
+        </div>
+
+        <div class="result-card hidden" id="ref-result"></div>
+      </section>
+
+      <!-- TAB 3: HISTORY -->
+      <section class="tab-panel" id="panel-history" role="tabpanel">
+        <div class="history-head">
+          <h3 data-i18n="historyTitle">So'nggi yaratilgan ishlar</h3>
+          <button type="button" class="ghost-btn" id="refresh-history-btn" data-i18n="refreshBtn">Yangilash</button>
+        </div>
+        <div id="history-list" class="history-list"></div>
+      </section>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

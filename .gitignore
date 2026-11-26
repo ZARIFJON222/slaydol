@@ -1,0 +1,8 @@
+.env
+firebase-credentials.json
+logs/
+generated/
+__pycache__/
+*.pyc
+.venv/
+venv/
