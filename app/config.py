@@ -18,12 +18,14 @@ _cred_raw = os.getenv("FIREBASE_CREDENTIALS", "firebase-credentials.json").strip
 FIREBASE_CREDENTIALS: Path = (
     Path(_cred_raw) if Path(_cred_raw).is_absolute() else BASE_DIR / _cred_raw
 )
+FIREBASE_CREDENTIALS_JSON: str = os.getenv("FIREBASE_CREDENTIALS_JSON", "").strip()
 
 _raw_keys = os.getenv("GEMINI_API_KEYS", "") or os.getenv("GEMINI_API_KEY", "")
 GEMINI_API_KEYS: list[str] = [k.strip() for k in _raw_keys.split(",") if k.strip()]
 GEMINI_API_KEY: str = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 
-GENERATED_DIR: Path = BASE_DIR / "generated"
+IS_VERCEL: bool = bool(os.getenv("VERCEL"))
+GENERATED_DIR: Path = Path("/tmp/slaydyasa_generated") if IS_VERCEL else BASE_DIR / "generated"
 GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 
 WEBAPP_URL: str = os.getenv("WEBAPP_URL", "").strip()

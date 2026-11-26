@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import time
 from datetime import datetime, timezone
@@ -8,7 +9,7 @@ import firebase_admin
 from aiogram import types
 from firebase_admin import credentials, firestore
 
-from app.config import FIREBASE_CREDENTIALS
+from app.config import FIREBASE_CREDENTIALS, FIREBASE_CREDENTIALS_JSON
 
 logger = logging.getLogger("slayd_yasa_bot.db")
 
@@ -31,15 +32,18 @@ def init_firestore():
     if _db is not None:
         return _db
 
-    if not FIREBASE_CREDENTIALS.exists():
-        raise FileNotFoundError(
-            f"\n[XATO] Firebase kalit fayli topilmadi: {FIREBASE_CREDENTIALS}\n"
-            "Firebase Console -> Project Settings -> Service Accounts -> "
-            "'Generate new private key' orqali JSON yuklab, shu nom bilan saqlang."
-        )
-
     if not firebase_admin._apps:
-        cred = credentials.Certificate(str(FIREBASE_CREDENTIALS))
+        if FIREBASE_CREDENTIALS_JSON:
+            cred_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
+            cred = credentials.Certificate(cred_dict)
+        elif FIREBASE_CREDENTIALS.exists():
+            cred = credentials.Certificate(str(FIREBASE_CREDENTIALS))
+        else:
+            raise FileNotFoundError(
+                f"\n[XATO] Firebase kalit fayli topilmadi: {FIREBASE_CREDENTIALS}\n"
+                "Lokalda firebase-credentials.json faylini qo'ying yoki Vercel'da "
+                "FIREBASE_CREDENTIALS_JSON environment variable'ni kiriting."
+            )
         firebase_admin.initialize_app(cred)
 
     _db = firestore.client()

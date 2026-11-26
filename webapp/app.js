@@ -246,7 +246,17 @@ function renderResult(container, ok, payload) {
 
   const a = document.createElement("a");
   a.className = "download-btn";
-  a.href = payload.download_url;
+  if (payload.file_base64) {
+    const bin = atob(payload.file_base64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const blob = new Blob([bytes], {
+      type: payload.mime_type || "application/octet-stream",
+    });
+    a.href = URL.createObjectURL(blob);
+  } else {
+    a.href = payload.download_url;
+  }
   a.download = payload.filename;
   a.textContent = dict.downloadBtn;
 
